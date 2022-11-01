@@ -19,28 +19,11 @@ export default function App() {
   const [currentArticleId, setCurrentArticleId] = useState()
   const [spinnerOn, setSpinnerOn] = useState(false)
 
-  // ✨ Research `useNavigate` in React Router v.6
   const navigate = useNavigate()
 
-  const redirectToLogin = () => { /* ✨ implement */ 
-  }
-
-  const redirectToArticles = () => { /* ✨ implement */
-  }
-
-// useEffect(() => {
-//   const token = localStorage.getItem('token')
-//   token !== null && token !== undefined && token !== false ? redirectToArticles() : redirectToLogin();
-//   console.log(token)
-// }, [spinnerOn])
-
+ 
 
   const logout = () => {
-    // ✨ implement
-    // If a token is in local storage it should be removed,
-    // and a message saying "Goodbye!" should be set in its proper state.
-    // In any case, we should redirect the browser back to the login screen,
-    // using the helper above.
     localStorage.removeItem('token');
     setMessage(`Goodbye!`)
     navigate('/')
@@ -86,6 +69,7 @@ export default function App() {
         setSpinnerOn(false);
         setMessage(res.data.message)
         setArticles(res.data.article)
+        getArticles();
       })
       .catch(err => {
         setSpinnerOn(false);
@@ -105,6 +89,7 @@ export default function App() {
       .then(res => {
         setSpinnerOn(false);
         setMessage(res.data.message)
+        getArticles();
       })
       .catch(err => {
         setSpinnerOn(false);
@@ -122,15 +107,26 @@ export default function App() {
       <div id="wrapper" style={{ opacity: spinnerOn ? "0.25" : "1" }}> {/* <-- do not change this line */}
         <h1>Advanced Web Applications</h1>
         <nav>
-          <NavLink id="loginScreen" to="/" onClick={() => redirectToLogin()}>Login</NavLink>
+          <NavLink id="loginScreen" to="/">Login</NavLink>
           <NavLink id="articlesScreen" to="/articles" >Articles</NavLink>
         </nav>
         <Routes>
           <Route path="/" element={<LoginForm login={login} setSpinnerOn={setSpinnerOn} />} />
           <Route path="articles"  element={
             <ProtectedRoute>
-              <ArticleForm postArticle={postArticle}  />
-              <Articles getArticles={getArticles} updateArticle={updateArticle} deleteArticle={deleteArticle} articles={articles} />
+              <ArticleForm
+                postArticle={postArticle}
+                currentArticle={currentArticleId}
+                setCurrentArticleId={setCurrentArticleId}
+                updateArticle={updateArticle}
+              />
+              <Articles
+                getArticles={getArticles}
+                deleteArticle={deleteArticle}
+                setCurrentArticleId={setCurrentArticleId}
+                articles={articles}
+                currentArticleId={currentArticleId}
+              />
             </ProtectedRoute>
           } />
         </Routes>
