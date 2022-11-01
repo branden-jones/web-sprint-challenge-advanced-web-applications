@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import PT from 'prop-types'
 
 const initialFormValues = { title: '', text: '', topic: '' }
 
 export default function ArticleForm(props) {
-  const { postArticle } = props
+  const { postArticle, currentArticle, setCurrentArticleId, updateArticle } = props;
+  const navigate = useNavigate();
   const [values, setValues] = useState(initialFormValues)
   // ✨ where are my props? Destructure them here
 
@@ -25,12 +27,12 @@ export default function ArticleForm(props) {
     // ✨ implement
     // We must submit a new post or update an existing one,
     // depending on the truthyness of the `currentArticle` prop.
-    postArticle(values)
+    postArticle(values);
   }
 
   const isDisabled = () => {
-    // ✨ implement
-    // Make sure the inputs have some values
+    if ((values.title !== '' && values.text !== '' && values.topic !== '' )) return false
+    else return true
   }
 
   return (
@@ -59,8 +61,8 @@ export default function ArticleForm(props) {
         <option value="Node">Node</option>
       </select>
       <div className="button-group">
-        <button disabled={isDisabled()} id="submitArticle">Submit</button>
-        <button onClick={Function.prototype}>Cancel edit</button>
+        <button disabled={isDisabled()} id="submitArticle" onClick={() => onSubmit()}>Submit</button>
+        <button disabled={isDisabled()} onClick={() => navigate('articles')}>Cancel edit</button>
       </div>
     </form>
   )
