@@ -35,7 +35,6 @@ export default function LoginForm(props) {
           return true
         }
   } 
-  console.log(isDisabled())
 
   return (
     <form id="loginForm" onSubmit={onSubmit}>
