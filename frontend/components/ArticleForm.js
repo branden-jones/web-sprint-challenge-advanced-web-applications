@@ -25,9 +25,8 @@ export default function ArticleForm(props) {
 
   const onSubmit = evt => {
     evt.preventDefault()
-    const id = evt.nativeEvent.submitter.id;
   
-    if ( id === 'submitArticle' && currentArticle ){
+    if ( currentArticle ){
     const updatedObj = {
       article_id: currentArticle.article_id,
       article: {
@@ -39,7 +38,7 @@ export default function ArticleForm(props) {
       updateArticle(updatedObj);
       reset()
     }
-    else if (id === 'submitArticle' && !currentArticle ) {
+    else if ( !currentArticle ) {
       postArticle(values);
       reset()
     }
@@ -83,7 +82,7 @@ export default function ArticleForm(props) {
       </select>
       <div className="button-group">
         <button disabled={isDisabled()} id="submitArticle" onClick={() => onSubmit}>Submit</button>
-        <button id='cancelEdit' disabled={isDisabled()} onClick={() => onSubmit}>Cancel edit</button>
+        <button id='cancelEdit' disabled={isDisabled()} onClick={() => reset()}>Cancel edit</button>
       </div>
     </form>
   )
