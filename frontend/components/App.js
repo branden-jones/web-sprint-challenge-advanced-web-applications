@@ -13,21 +13,22 @@ const articlesUrl = 'http://localhost:9000/api/articles'
 const loginUrl = 'http://localhost:9000/api/login'
 
 export default function App() {
+  
   // ✨ MVP can be achieved with these states
   const [message, setMessage] = useState('')
   const [articles, setArticles] = useState([])
-  const [currentArticleId, setCurrentArticleId] = useState()
+  const [currentArticleId, setCurrentArticleId] = useState(null)
   const [spinnerOn, setSpinnerOn] = useState(false)
 
   const navigate = useNavigate()
 
- 
 
   const logout = () => {
     localStorage.removeItem('token');
     setMessage(`Goodbye!`)
     navigate('/')
   }
+
 
   const login = ({ username, password }) => {
     setSpinnerOn(true)
@@ -68,8 +69,15 @@ export default function App() {
       .then(res => {
         setSpinnerOn(false);
         setMessage(res.data.message)
-        setArticles(res.data.article)
-        getArticles();
+        setArticles([
+          ...articles,
+          {
+            article_id: res.data.article.article_id,
+            title: res.data.article.title,
+            text: res.data.article.text,
+            topic: res.data.article.topic,
+          }
+        ])
       })
       .catch(err => {
         setSpinnerOn(false);
@@ -77,10 +85,29 @@ export default function App() {
       })
   }
 
+
   const updateArticle = ({ article_id, article }) => {
-    // ✨ implement
-    // You got this!
-  }
+    setSpinnerOn(true);
+    setMessage('');
+    const { title, text, topic } = article
+    axiosWithAuth().put(`${articlesUrl}/${article_id}`,{"title": title, "text": text, "topic": topic})
+      .then(res => {
+        setSpinnerOn(false)
+        setMessage(res.data.message)
+        setCurrentArticleId(null)
+        setArticles(articles.map((art) => {
+          if (art.article_id === res.data.article.article_id) {
+            return res.data.article;
+          } else {
+            return art;
+          }
+        }))
+      })
+      .catch(err => {
+        setSpinnerOn(false)
+        setMessage(`${err.response.data.message}`)
+      })
+    }
 
   const deleteArticle = article_id => {
     setSpinnerOn(true);
@@ -89,14 +116,13 @@ export default function App() {
       .then(res => {
         setSpinnerOn(false);
         setMessage(res.data.message)
-        getArticles();
+        setArticles(articles.filter(obj => article_id !== obj.article_id))
       })
       .catch(err => {
         setSpinnerOn(false);
         setMessage(`${err.response.data.message}, ${err.response.statusText}`)
       })
   }
-
 
   return (
     // ✨ fix the JSX: `Spinner`, `Message`, `LoginForm`, `ArticleForm` and `Articles` expect props ❗
@@ -111,12 +137,12 @@ export default function App() {
           <NavLink id="articlesScreen" to="/articles" >Articles</NavLink>
         </nav>
         <Routes>
-          <Route path="/" element={<LoginForm login={login} setSpinnerOn={setSpinnerOn} />} />
+          <Route path="/" element={<LoginForm login={login} />} />
           <Route path="articles"  element={
             <ProtectedRoute>
               <ArticleForm
                 postArticle={postArticle}
-                currentArticle={currentArticleId}
+                currentArticle={articles.find(art => art.article_id === currentArticleId)}
                 setCurrentArticleId={setCurrentArticleId}
                 updateArticle={updateArticle}
               />

@@ -6,12 +6,14 @@ export default function Articles(props) {
   const { getArticles, deleteArticle, setCurrentArticleId, articles,
   currentArticleId } = props
 
-  // ✨ implement conditional logic: if no token exists
-  // we should render a Navigate to login screen (React Router v.6)
-
   useEffect(() => {
     getArticles()
   }, [])
+
+  const isDisabled = () => {
+    if (currentArticleId) return true;
+    return false
+  }
 
   return (
     <div className="articles">
@@ -28,8 +30,8 @@ export default function Articles(props) {
                   <p>Topic: {art.topic}</p>
                 </div>
                 <div>
-                  <button onClick={() => setCurrentArticleId(art.article_id)}>Edit</button>
-                  <button onClick={() => deleteArticle(art.article_id)}>Delete</button>
+                  <button disabled={isDisabled()} onClick={() => setCurrentArticleId(art.article_id)}>Edit</button>
+                  <button disabled={isDisabled()} onClick={() => deleteArticle(art.article_id)}>Delete</button>
                 </div>
               </div>
             )

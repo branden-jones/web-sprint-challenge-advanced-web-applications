@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import PT from 'prop-types'
 
 const initialFormValues = { title: '', text: '', topic: '' }
 
 export default function ArticleForm(props) {
   const { postArticle, currentArticle, setCurrentArticleId, updateArticle } = props;
-  const navigate = useNavigate();
   const [values, setValues] = useState(initialFormValues)
-  // ✨ where are my props? Destructure them here
+
+  const reset = () => {
+    setValues(initialFormValues);
+    setCurrentArticleId(null)
+  }
 
   useEffect(() => {
-    // ✨ implement
-    // Every time the `currentArticle` prop changes, we should check it for truthiness:
-    // if it's truthy, we should set its title, text and topic into the corresponding
-    // values of the form. If it's not, we should reset the form back to initial values.
-  },[])
+    currentArticle ?
+    setValues(currentArticle) : 
+    reset()
+  },[currentArticle])
 
   const onChange = evt => {
     const { id, value } = evt.target
@@ -24,22 +25,42 @@ export default function ArticleForm(props) {
 
   const onSubmit = evt => {
     evt.preventDefault()
-    // ✨ implement
-    // We must submit a new post or update an existing one,
-    // depending on the truthyness of the `currentArticle` prop.
-    postArticle(values);
+    const id = evt.nativeEvent.submitter.id;
+  
+    if ( id === 'submitArticle' && currentArticle ){
+    const updatedObj = {
+      article_id: currentArticle.article_id,
+      article: {
+        title: values.title,
+        text: values.text,
+        topic: values.topic,
+      }
+    }
+      updateArticle(updatedObj);
+      reset()
+    }
+    else if (id === 'submitArticle' && !currentArticle ) {
+      postArticle(values);
+      reset()
+    }
+    else {
+      reset();
+    }
+    reset();
   }
 
   const isDisabled = () => {
-    if ((values.title !== '' && values.text !== '' && values.topic !== '' )) return false
-    else return true
+    if ((values.title !== '' && values.text !== '' && values.topic !== '' ) || currentArticle ) {
+      return false
+    }
+    else {
+      return true
+    }
   }
 
   return (
-    // ✨ fix the JSX: make the heading display either "Edit" or "Create"
-    // and replace Function.prototype with the correct function
     <form id="form" onSubmit={onSubmit}>
-      <h2>Create Article</h2>
+      <h2>{currentArticle ? `Edit Article` : `Create Article`}</h2>
       <input
         maxLength={50}
         onChange={onChange}
@@ -61,8 +82,8 @@ export default function ArticleForm(props) {
         <option value="Node">Node</option>
       </select>
       <div className="button-group">
-        <button disabled={isDisabled()} id="submitArticle" onClick={() => onSubmit()}>Submit</button>
-        <button disabled={isDisabled()} onClick={() => navigate('articles')}>Cancel edit</button>
+        <button disabled={isDisabled()} id="submitArticle" onClick={() => onSubmit}>Submit</button>
+        <button id='cancelEdit' disabled={isDisabled()} onClick={() => onSubmit}>Cancel edit</button>
       </div>
     </form>
   )

@@ -7,7 +7,7 @@ const initialFormValues = {
 }
 export default function LoginForm(props) {
   const [values, setValues] = useState(initialFormValues)
-  const { login, setSpinnerOn } = props;
+  const { login } = props;
 
   const onChange = evt => {
     const { id, value } = evt.target
